@@ -1,0 +1,37 @@
+//- Jade 변수
+- var greeting   = 'Good Day! ^▽^'
+- var page_title = 'Jade & Sass Project'
+
+
+
+<!DOCTYPE html>
+html(lang="ko-KR")
+	head
+		meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+		meta(charset="UTF-8")
+		title= page_title
+
+		link(rel="stylesheet", href="css/style.css")
+		//- Style 문서 내부에 삽입
+		style.
+			body {
+				background: #feffff;
+			}
+
+		script(src="//code.jquery.com/jquery.min.js")
+		//- Script 문서 내부에 삽입
+		script.
+			jQuery(function($){
+				$('body').addClass('jade-sass-project');
+			});
+
+	body
+		h1
+			//- 보간법(Interpolation)
+			| #{greeting}
+			br
+			span.browser-sync Browser-sync
+			br
+			span.jade Jade
+			br
+			span.sass Sass

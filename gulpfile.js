@@ -1,37 +1,68 @@
-var gulp = require('gulp');
-var jade = require('gulp-jade'); //Jade -> HTML
-var sass = require('gulp-sass');
+var gulp        = require('gulp'),
+	jade        = require('gulp-jade'),
+	sass        = require('gulp-sass'),
+	browserSync = require('browser-sync'),
+	reload      = browserSync.reload;
 
-// gulp.task('업무이름', 업무를 처리할 함수);
+/**
+ * --------------------------------
+ * 환경설정
+ * --------------------------------
+ */
+var config = {
+	'jade': { 'pretty': true },
+	'sass': {
+		'outputStyle': 'compact' // compact, compressed, nested, expanded
+	}
+};
 
-//Jade -> HTML
+/**
+ * --------------------------------
+ * Gulp 업무
+ * --------------------------------
+ */
+// 기본 업무
+gulp.task('default', ['jade', 'sass'], function() {
+	browserSync({'server': './dist'})
+	gulp.start('watch');
+});
 
-gulp.task('default', ['jade', 'sass', 'watch']);
 
-gulp.task('jade', function  () {
-	gulp.src('src/index.jade')
-		.pipe(jade({pretty:true}))
-		.pipe(gulp.dest('dist'));
-})
-gulp.task('sass', function  () {
-	gulp.src('src/sass/style.scss')
-		.pipe(sass())
-		.pipe(gulp.dest('dist/scss'));
-})
-gulp.task('watch', function  () {
-	gulp.watch(['src/index.jade'], ['jade']);
-	gulp.watch(['src/sass/style.scss'], ['sass']);
+// 관찰 업무
+gulp.task('watch', function() {
+	gulp.watch(['src/**/*.jade'], ['watch:jade']);
+	gulp.watch(['src/sass/**/*.scss'], ['sass']);
+});
 
-})
+gulp.task('watch:jade', ['jade'], reload);
 
-// gulp.task('show:food', function  () {
-// 	console.log('show me the FOOD');
-// });
 
-// gulp.task('eat:food', function  () {
-// 	console.log('eating the FOOD');
-// });
+// 변경 업무: Jade → HTML
+gulp.task('jade', function() {
+	return gulp.src('src/**/*.jade')
+		.pipe( jade( config.jade ) )
+		.on('error', errorLog)
+		.pipe( gulp.dest('dist') );
+});
 
-// gulp.task('play-game', function  () {
-// 	console.log('play the Game!');
-// });
+
+// 변경 업무: Sass → Css
+gulp.task('sass', function() {
+	return gulp.src('src/sass/**/*.scss')
+		.pipe( sass( config.sass ).on('error', sass.logError) )
+		.pipe( gulp.dest('dist/css') )
+		.pipe( reload({stream: true}) );
+});
+
+
+/**
+ * --------------------------------
+ * 유틸리티
+ * --------------------------------
+ */
+// 오류 출력을 위한 errorLog 함수
+// 오류 발생 시에도 watch 업무 중단하지 않음.
+function errorLog(error) {
+	console.error.bind(error);
+	this.emit('end');
+}
